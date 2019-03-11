@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.ehuacui.bbs.mapper.NotificationMapper">
+
+    <resultMap id="BaseResultMap" type="org.ehuacui.bbs.model.Notification">
+        <id column="id" jdbcType="INTEGER" property="id"/>
+        <result column="is_read" jdbcType="BIT" property="isRead"/>
+        <result column="author" jdbcType="VARCHAR" property="author"/>
+        <result column="title" jdbcType="VARCHAR" property="title"/>
+        <result column="target_author" jdbcType="VARCHAR" property="targetAuthor"/>
+        <result column="in_time" jdbcType="TIMESTAMP" property="inTime"/>
+        <result column="action" jdbcType="VARCHAR" property="action"/>
+        <result column="tid" jdbcType="INTEGER" property="tid"/>
+        <result column="content" jdbcType="LONGVARCHAR" property="content"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, is_read, author, target_author, in_time, action, tid, content
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from tb_notification
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+
+    <select id="countNotReadByAuthor" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(id) from tb_notification where is_read = 0 and target_author = #{author,jdbcType=VARCHAR}
+    </select>
+
+    <select id="countByAuthor" parameterType="java.lang.String" resultType="java.lang.Integer">
+        select count(n.id)
+        from tb_notification n, tb_topic t
+        where n.tid = t.id and t.is_delete = 0 and n.target_author = #{author,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByAuthor" resultMap="BaseResultMap">
+        select n.*, t.title
+        from tb_notification n, tb_topic t
+        where n.tid = t.id and t.is_delete = 0 and n.target_author = #{author,jdbcType=VARCHAR}
+        order by n.is_read, n.in_time desc
+        <if test="start != null">
+            limit #{start,jdbcType=INTEGER}
+            <if test="limit != null">
+                ,#{limit,jdbcType=INTEGER}
+            </if>
+        </if>
+    </select>
+
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        delete from tb_notification
+        where id = #{id,jdbcType=INTEGER}
+    </delete>
+
+    <insert id="insert" parameterType="org.ehuacui.bbs.model.Notification" keyProperty="id" useGeneratedKeys="true">
+        insert into tb_notification (id, is_read, author,
+        target_author, in_time, action,tid, content)
+        values (#{id,jdbcType=INTEGER}, #{isRead,jdbcType=BIT}, #{author,jdbcType=VARCHAR},
+        #{targetAuthor,jdbcType=VARCHAR}, #{inTime,jdbcType=TIMESTAMP}, #{action,jdbcType=VARCHAR},
+        #{tid,jdbcType=INTEGER}, #{content,jdbcType=LONGVARCHAR})
+    </insert>
+
+    <insert id="insertSelective" parameterType="org.ehuacui.bbs.model.Notification" keyProperty="id"
+            useGeneratedKeys="true">
+        insert into tb_notification
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="isRead != null">
+                is_read,
+            </if>
+            <if test="author != null">
+                author,
+            </if>
+            <if test="targetAuthor != null">
+                target_author,
+            </if>
+            <if test="inTime != null">
+                in_time,
+            </if>
+            <if test="action != null">
+                action,
+            </if>
+            <if test="tid != null">
+                tid,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="isRead != null">
+                #{isRead,jdbcType=BIT},
+            </if>
+            <if test="author != null">
+                #{author,jdbcType=VARCHAR},
+            </if>
+            <if test="targetAuthor != null">
+                #{targetAuthor,jdbcType=VARCHAR},
+            </if>
+            <if test="inTime != null">
+                #{inTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="action != null">
+                #{action,jdbcType=VARCHAR},
+            </if>
+            <if test="tid != null">
+                #{tid,jdbcType=INTEGER},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=LONGVARCHAR},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateByPrimaryKeySelective" parameterType="org.ehuacui.bbs.model.Notification">
+        update tb_notification
+        <set>
+            <if test="isRead != null">
+                is_read = #{isRead,jdbcType=BIT},
+            </if>
+            <if test="author != null">
+                author = #{author,jdbcType=VARCHAR},
+            </if>
+            <if test="targetAuthor != null">
+                target_author = #{targetAuthor,jdbcType=VARCHAR},
+            </if>
+            <if test="inTime != null">
+                in_time = #{inTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="action != null">
+                action = #{action,jdbcType=VARCHAR},
+            </if>
+            <if test="tid != null">
+                tid = #{tid,jdbcType=INTEGER},
+            </if>
+            <if test="content != null">
+                content = #{content,jdbcType=LONGVARCHAR},
+            </if>
+        </set>
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateByPrimaryKey" parameterType="org.ehuacui.bbs.model.Notification">
+        update tb_notification
+        set is_read = #{isRead,jdbcType=BIT},
+        author = #{author,jdbcType=VARCHAR},
+        target_author = #{targetAuthor,jdbcType=VARCHAR},
+        in_time = #{inTime,jdbcType=TIMESTAMP},
+        action = #{action,jdbcType=VARCHAR},
+        tid = #{tid,jdbcType=INTEGER},
+        content = #{content,jdbcType=LONGVARCHAR}
+        where id = #{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="updateUnreadToRead" parameterType="java.lang.String">
+        update tb_notification set is_read = 1 where is_read = 0 and target_author = #{author,jdbcType=VARCHAR}
+    </update>
+
+
+</mapper>
